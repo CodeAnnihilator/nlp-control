@@ -1,0 +1,19 @@
+version: "3"
+services:
+  node_backend:
+    container_name: "node_backend"
+    build: ./node_backend/
+    ports:
+      - "3001:3001"
+  # pg:
+  #   image: "postgres:12"
+  #   container_name: "postgres"
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - ./pg/db_data:/var/lib/postgresql/data
+  react_frontend:
+      container_name: "react_frontend"
+      build: ./react_frontend/
+      ports:
+        - "3000:3000"

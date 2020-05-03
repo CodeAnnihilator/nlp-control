@@ -1,0 +1,29 @@
+{
+  "name": "node_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0",
+    "fetch": "^1.1.0",
+    "google-spreadsheet": "^3.0.11",
+    "https-proxy-agent": "^5.0.0",
+    "isomorphic-fetch": "^2.2.1",
+    "json-prune": "^1.1.0",
+    "lodash": "^4.17.15",
+    "node-wit": "^5.0.0",
+    "pg": "^8.0.3",
+    "util": "^0.12.3",
+    "uuid": "^8.0.0",
+    "websocket": "^1.0.31",
+    "ws": "^7.2.5"
+  }
+}
