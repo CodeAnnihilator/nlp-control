@@ -54,9 +54,8 @@ server.listen(port, async () => {
     const rows = await sheet.getRows();
 
     rows.forEach((row, i) => {
-        const fields =['combination', 'phrase', 'language', 'values', 'associations', 'intent'];
+        const fields = ['combination', 'phrase', 'language', 'values', 'associations', 'intent'];
         const rowData = _.pick(row, fields);
-        console.log(`processing row ${i} with phrase ${rowData.phrase}`)
         spreadSheetBackup.push(rowData);
     })
 
@@ -74,15 +73,105 @@ server.listen(port, async () => {
         .uniq()
         .value();
 
+    const detdLangs = _
+        .chain(spreadSheetBackup)
+        .groupBy('language')
+        .toPairs()
+        .map(_.first)
+        .value();
+
+    console.log(`detected languages: ${detdLangs}`);
+
+    const combLangs = _
+        .chain(spreadSheetBackup)
+        .groupBy('combination')
+        .map((c, i) => ({[i]: _.map(c, 'language')}))
+        .omitBy('')
+        .toArray()
+        .value();
+
+    const combLangsDupls = _
+        .chain(combLangs)
+        .map(c => _
+            .chain(c)
+            .values()
+            .flattenDeep()
+            .filter((val, i, iteratee) => _.includes(iteratee, val, i + 1))
+            .map((l) => ({[_.keys(c)[0]]: [l]}))
+            .value()
+        )
+        .map(v => {
+            if (!v.length) return v;
+            return _.reduce(v, (c, n) => {
+                const key = _.keys(n)[0];
+                if (!c.hasOwnProperty(key)) return c[key] = n[key], c;
+                return c[key] = c[key].concat(n[key]), c;
+            }, Object.assign({}))
+        })
+        .filter(_.size)
+        .value();
+        
+    combLangsDupls.forEach(group => {
+        for (comb in group) {
+            group[comb].forEach(lang => {
+                console.log(`combination ${comb} has duplication of language: ${lang}`);
+            });
+        };
+    });
+
+    combLangs.forEach(group => {
+        for (comb in group) {
+            const mLangs = detdLangs.filter(v => !group[comb].includes(v));
+            mLangs.forEach(lang => {
+                console.log(`detected missing language for combination ${comb}: ${lang}`);
+            });
+        };
+    });
+
     console.log(`found unique combinations: ${uniqCombs.length}`);
 
     console.log('STEP: [2/10]');
     console.log('checking for validation issues');
 
+    const emptyFieldsSrategy = (data, column) => {
+        const emptyFields = data
+            .map((row, index) => ({...row, position: index}))
+            .filter(row => _.isEmpty(row[column]))
+            .map(row => row.position);
+        return {[column]: emptyFields};
+    };
+
+    const emptyFieldsLogStrategy = data => {
+        for (group in data) {
+            for (let i = 0; i < data[group].length; i++) {
+                console.log(`empty ${group} cell detected at row: ${data[group][i] + 2}`)
+            }
+        }
+    }
+
+    const emptyCombFields = emptyFieldsSrategy(spreadSheetBackup, 'combination');
+    emptyFieldsLogStrategy(emptyCombFields);
+
+    const emptyPhraseFields = emptyFieldsSrategy(spreadSheetBackup, 'phrase');
+    emptyFieldsLogStrategy(emptyPhraseFields);
+
+    const emptyLangFields = emptyFieldsSrategy(spreadSheetBackup, 'language');
+    emptyFieldsLogStrategy(emptyLangFields);
+
+    const emptyValuesFields = emptyFieldsSrategy(spreadSheetBackup, 'values');
+    emptyFieldsLogStrategy(emptyValuesFields);
+    
+    const emptyAssociationsFields = emptyFieldsSrategy(spreadSheetBackup, 'associations');
+    emptyFieldsLogStrategy(emptyAssociationsFields);
+
+    const emptyIntentFields = emptyFieldsSrategy(spreadSheetBackup, 'intent');
+    emptyFieldsLogStrategy(emptyIntentFields);
+
     const combMissingIds =
         _.flattenDeep(
             uniqCombs
                 .sort((a, b) => a - b)
+                .filter(arr => arr)
                 .reduce((c, n, i, arr) => {
                     if (!arr[i + 1]) return c;
                     const gap = Math.abs(n - arr[i + 1]) - 1;
