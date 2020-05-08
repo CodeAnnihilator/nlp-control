@@ -6,8 +6,7 @@ function SpreadSheet({client_email, private_key, spreadsheet_id}) {
         await this.doc.useServiceAccountAuth({client_email, private_key});
         await this.doc.loadInfo();
         return this.doc;
-    }
-    // return this.doc;
+    };
 }
 
 module.exports = SpreadSheet;

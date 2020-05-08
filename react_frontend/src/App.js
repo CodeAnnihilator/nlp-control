@@ -12,10 +12,11 @@ class App extends Component {
     client.onmessage = (message) => {
       console.log(message);
     };
+
     
   }
   
-  validate = () => fetch.get('/validate');
+  validate = () => client.send('validate');
 
   render() {
     return (
