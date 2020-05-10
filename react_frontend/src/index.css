@@ -12,6 +12,12 @@ code {
     monospace;
 }
 
+#pageContainer {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
 #root {
   display: flex;
 }

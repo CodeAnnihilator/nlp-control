@@ -1,0 +1,22 @@
+.header {
+    display: flex;
+    justify-content: space-evenly;
+    height: fit-content;
+    border-bottom: 1px solid #E5E5E5;
+    padding: 10px;
+}
+
+.controls {
+    display: flex;
+    justify-content: flex-end;
+    padding: 20px;
+    background-color: #F9F9F9;
+}
+
+.console {
+    display: flex;
+    flex: 1;
+    background-color: #121212;
+    color: #6DFF4A;
+    padding: 20px;
+}

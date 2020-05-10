@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="19px" height="21px" viewBox="0 0 19 21" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>business-and-finance</title>
+    <defs>
+        <rect id="path-1" x="209" y="0" width="816" height="143"></rect>
+        <filter x="-0.1%" y="-0.3%" width="100.1%" height="101.4%" filterUnits="objectBoundingBox" id="filter-2">
+            <feOffset dx="0" dy="1" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feColorMatrix values="0 0 0 0 0.898039216   0 0 0 0 0.898039216   0 0 0 0 0.898039216  0 0 0 1 0" type="matrix" in="shadowOffsetOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Desktop" transform="translate(-692.000000, -34.000000)">
+            <g id="bg">
+                <g id="Rectangle">
+                    <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
+                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                </g>
+            </g>
+            <g id="intents-copy-2" transform="translate(658.666667, 30.000000)">
+                <circle id="Oval" fill="#E3E3E3" cx="43" cy="14" r="14"></circle>
+                <g id="business-and-finance" transform="translate(34.000000, 4.000000)" fill="#000000" fill-rule="nonzero">
+                    <path d="M8.99955405,0 L0.012,5.18890541 L0.012,15.5666757 L8.99955405,20.7556216 L17.9869054,15.5666757 L17.9869054,5.18890541 L8.99955405,0 Z M16.1623784,5.53990541 L8.99955405,9.67362162 L1.83652703,5.53990541 L8.99955405,1.40436486 L16.1623784,5.53990541 Z M1.22821622,6.59302703 L8.39144595,10.7269054 L8.39144595,19.0001757 L1.22821622,14.8645135 L1.22821622,6.59302703 Z M9.60766216,19.0001757 L9.60766216,10.7269054 L16.7706892,6.59306757 L16.7706892,14.8645541 L9.60766216,19.0001757 Z" id="Shape"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

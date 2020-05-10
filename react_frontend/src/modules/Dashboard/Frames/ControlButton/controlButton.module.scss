@@ -1,0 +1,16 @@
+.container {
+    width: 194px;
+    height: 62px;
+    border: 1px solid #e5e5e5;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 10px;
+    cursor: pointer;
+}
+
+.disabled {
+    background-color: #ececec;
+    cursor: not-allowed;
+}
