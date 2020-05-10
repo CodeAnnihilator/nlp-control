@@ -1,0 +1,18 @@
+{
+  "name": "node_api_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "json-prune": "^1.1.0",
+    "lodash": "^4.17.15"
+  }
+}

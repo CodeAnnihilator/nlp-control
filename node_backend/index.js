@@ -2,11 +2,14 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const axios = require('axios');
 
 const Wit = require('./lib/node-wit-custom');
 const SpreadSheet = require('./lib/spreadsheet');
 
 const validateSheet = require('./lib/validateSheet');
+const validateWIT = require('./lib/validateWIT');
+const findBumps = require('./lib/findBumps');
 const wsServer = require('./lib/ws')
 const { getSheetData } = require('./lib/utils');
 
@@ -28,7 +31,20 @@ server.listen(port, async () => {
 
     wss.on('connection', async ws => {
         ws.on('message', message => {})
-    })
+    });
+
+    const WitInstance = new Wit({
+        accessToken: witToken
+    });
+
+    // map all data from sheet to request all collections from the backend
+    const collection = await axios
+        .get('http://localhost:9000/collections/person')
+        .then(({data}) => data);
+
+    const assocValues = {person: collection};
+
+    const witSamples = await validateWIT(WitInstance);
 
     const SheetInstance = await new SpreadSheet({
         client_email: googleClientEmail,
@@ -36,24 +52,17 @@ server.listen(port, async () => {
         spreadsheet_id: googleSpreadsheetId
     }).connect();
 
-    const columns = ['combination', 'phrase', 'language', 'values', 'associations', 'intent'];
+    const columns = ['combination', 'phrase', 'language', 'intent'];
 
     const sheet = await getSheetData(SheetInstance, columns);
 
     const sheetMeta = validateSheet(sheet, columns);
 
-    console.log(sheetMeta);
+    const bumps = findBumps(sheet, witSamples, assocValues);
+
+    console.log(bumps);
 
 });
-
-// const _ = require('lodash');
-// const uuid = require('uuid');
-// const fs = require('fs');
-// const prune = require('json-prune');
-
-// let sampleOffset = 0;
-// const backupId = uuid.v4();
-// const samplesBackup = new Set();
 
 // await fs.writeFileSync(
 //     __dirname + `/backups/google-sheet-${backupId}.json`,
@@ -66,20 +75,3 @@ server.listen(port, async () => {
 //     prune([...samplesBackup]),
 //     'utf-8'
 // );
-
-// const witClient = new Wit({
-//     accessToken: witToken
-// })
-
-// console.log('pulling samples data');
-
-// while (true) {
-//     const sample = await witClient
-//         .get(`samples?&offset=${sampleOffset}&limit=1`)
-//         .then(({data}) => data[0])
-//         .catch(console.error);
-//     if (!sample) break;
-//     console.log(`fetching sample: ${sample.id}, ${sample.text}`);
-//     samplesBackup.add(sample);
-//     sampleOffset++;
-// }
