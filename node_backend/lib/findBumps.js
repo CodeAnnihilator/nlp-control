@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const findBumps = (sheet, samples, assocValues) => {
+const findBumps = (sheet, samples, assocValues, ws) => {
 
     // add meta phrase like text with <...> to each row
     const modSamples = samples.map(row => {
@@ -38,9 +38,8 @@ const findBumps = (sheet, samples, assocValues) => {
         const {value} = entities.find(({entity}) => entity === 'intent');
         const isIntentMatch = sheet.some(({intent}) => intent === value)
         if (!isIntentMatch) {
-            console.log(
-                `sample intent <${value}> does not match any sheet intent for phrase: ${text} (${metaPhrase})`
-            );
+            ws.emit('warning', `[WARNING]: sample intent <${value}> does not match any sheet intent for phrase: ${text} (${metaPhrase})`);
+            // console.log(`sample intent <${value}> does not match any sheet intent for phrase: ${text} (${metaPhrase})`);
         };
     });
 
@@ -75,8 +74,11 @@ const findBumps = (sheet, samples, assocValues) => {
             values.forEach(value => {
                 const isValueTrained = assocValues[key].some(assocValue => assocValue === value);
                 !isValueTrained
-                    ? console.log(`SKIP TRAINING: loaded backend data has missing training parameter <${value}> for <${key}> association`)
-                    : console.log(`SKIP TRAINING: already trained for <${value}>, associated with <${key}>`);
+                    ? ws.emit('warning', `[INFO]: skip training - loaded backend data has missing training parameter <${value}> for <${key}> association`)
+                    : ws.emit('warning', `[INFO]: skip training - already trained for <${value}>, associated with <${key}>`)
+                // !isValueTrained
+                //     ? console.log(`SKIP TRAINING: loaded backend data has missing training parameter <${value}> for <${key}> association`)
+                //     : console.log(`SKIP TRAINING: already trained for <${value}>, associated with <${key}>`);
             });
         };
 
@@ -86,7 +88,8 @@ const findBumps = (sheet, samples, assocValues) => {
             if (trainedSet) {
                 const trainingSet = values.filter(value => !trainedSet.some(trainedValue => trainedValue == value));
                 trainingSet.forEach(value => {
-                    console.log(`TRAINING: training with <${value}> for phrase: ${group[0].metaPhrase}`);
+                    ws.emit('warning', `[INFO]: training identity detected with <${value}> for phrase: ${group[0].metaPhrase}`)
+                    // console.log(`TRAINING: training with <${value}> for phrase: ${group[0].metaPhrase}`);
                 })
             }
         }

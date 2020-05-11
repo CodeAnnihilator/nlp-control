@@ -11,7 +11,7 @@ const emptyCells = (data, column) => {
 };
 
 // find and return all sheet issues and meta data
-const validateSheet = (sheet, columns) => {
+const validateSheet = (sheet, columns, ws) => {
 
     const warnings = [];
 
@@ -30,6 +30,7 @@ const validateSheet = (sheet, columns) => {
         .toPairs()
         .map(_.first)
         .filter(v => v !== 'undefined')
+        .filter(v => v)
         .value();
 
     // language duplications per combination
@@ -104,7 +105,8 @@ const validateSheet = (sheet, columns) => {
     langCombDups.forEach(group => {
         for (comb in group) {
             group[comb].forEach(lang => {
-                warnings.push(`combination ${comb} has duplication of language: ${lang}`);
+                ws.emit('warning', `[WARNING]: combination ${comb} has duplication of language: ${lang}`);
+                // warnings.push(`combination ${comb} has duplication of language: ${lang}`);
             });
         };
     });
@@ -113,7 +115,8 @@ const validateSheet = (sheet, columns) => {
         for (comb in group) {
             const missLangs = langs.filter(v => !group[comb].includes(v));
             missLangs.forEach(lang => {
-                warnings.push(`detected missing language for combination ${comb}: ${lang}`);
+                ws.emit('warning', `[WARNING]: detected missing language for combination ${comb}: ${lang}`);
+                // warnings.push(`detected missing language for combination ${comb}: ${lang}`);
             });
         };
     });
@@ -122,28 +125,30 @@ const validateSheet = (sheet, columns) => {
         const fields = emptyCells(sheet, column);
         for (group in fields) {
             for (let i = 0; i < fields[group].length; i++) {
-                warnings.push(`empty ${group} cell detected at row: ${fields[group][i] + 2}`);
+                ws.emit('warning', `[WARNING]: empty ${group} cell detected at row: ${fields[group][i] + 2}`);
+                // warnings.push(`empty ${group} cell detected at row: ${fields[group][i] + 2}`);
             };
         };
     });
 
     skippedCombsIds.length > 1
-        ? warnings.push(
-            `skipped combination range: from ${skippedCombsIds[0]} to ${skippedCombsIds.slice(-1)[0]}`
-        )
-        : skippedCombsIds.length && warnings.push(`skipped combination id: ${skippedCombsIds[0]}`);
+        ? ws.emit('warning', `[WARNING]: skipped combination range: from ${skippedCombsIds[0]} to ${skippedCombsIds.slice(-1)[0]}`)
+        : ws.emit('warning', `[WARNING]: skipped combination id: ${skippedCombsIds[0]}`);
+
+    // skippedCombsIds.length > 1
+    //     ? warnings.push(`skipped combination range: from ${skippedCombsIds[0]} to ${skippedCombsIds.slice(-1)[0]}`)
+    //     : skippedCombsIds.length && warnings.push(`skipped combination id: ${skippedCombsIds[0]}`);
 
     combBrokeOrder.forEach(obj => {
         for (const group in obj) {
             obj[group].forEach(issue => {
-                warnings.push(
-                    `element of group ${group} not in proper position at row: ${issue.position + 2}`
-                )
+                ws.emit('warning', `[WARNING]: element of group ${group} not in proper position at row: ${issue.position + 2}`);
+                // warnings.push(`element of group ${group} not in proper position at row: ${issue.position + 2}`)
             });
         };
     });
 
-    return {warnings, langs, combs};
+    return {langs, combs};
 }
 
 module.exports = validateSheet;

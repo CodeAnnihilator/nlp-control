@@ -5,11 +5,18 @@
   "dependencies": {
     "axios": "^0.19.2",
     "classnames": "^2.2.6",
+    "lodash": "^4.17.15",
     "node-sass": "^4.14.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
+    "react-redux": "^7.2.0",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.4.1",
+    "redux": "^4.0.5",
+    "redux-batched-actions": "^0.5.0",
+    "redux-devtools-extension": "^2.13.8",
+    "redux-saga": "^1.1.0",
+    "socket.io-client": "^2.3.0",
     "websocket": "^1.0.31"
   },
   "scripts": {

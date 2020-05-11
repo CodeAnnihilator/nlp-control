@@ -13,10 +13,21 @@
     background-color: #F9F9F9;
 }
 
-.console {
+.consoleWrapper {
+    position: relative;
     display: flex;
     flex: 1;
+    overflow: scroll;
+    scroll-behavior: smooth;
     background-color: #121212;
-    color: #6DFF4A;
     padding: 20px;
+}
+
+.console {
+    display: flex;
+    flex-direction: column;
+    color: #6DFF4A;
+    position: absolute;
+    font-size: 16px;
+    line-height: 21px;
 }
