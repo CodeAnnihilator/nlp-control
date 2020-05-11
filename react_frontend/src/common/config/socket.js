@@ -6,7 +6,19 @@ const setupSocket = dispatch => {
   const socket = io('http://127.0.0.1:8000');
 
   socket.on('warning', message => {
-      dispatch(logsActions.sendLogWarning(message))
+    dispatch(logsActions.sendLogWarning({type: 'warning', message}))
+  })
+
+  socket.on('info', message => {
+    dispatch(logsActions.sendLogWarning({type: 'info', message}))
+  })
+
+  socket.on('count.collections', message => {
+    dispatch(logsActions.sendLogWarning({type: 'count.collections', message}))
+  })
+
+  socket.on('count.languages', message => {
+    dispatch(logsActions.sendLogWarning({type: 'count.languages', message}))
   })
 
   return socket;

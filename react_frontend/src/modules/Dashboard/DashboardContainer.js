@@ -4,8 +4,11 @@ import Dashboard from './Dashboard';
 
 import actions from 'common/actions/socket';
 
-const mapStateToProps = state => ({
-	logs: state.logs.data
+const mapStateToProps = ({logs}) => ({
+	logs: logs.data,
+	issues: logs.issues,
+	collections: logs.collections,
+	languages: logs.languages
 })
 
 const mapDispatchToProps = {

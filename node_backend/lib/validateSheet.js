@@ -106,7 +106,6 @@ const validateSheet = (sheet, columns, ws) => {
         for (comb in group) {
             group[comb].forEach(lang => {
                 ws.emit('warning', `[WARNING]: combination ${comb} has duplication of language: ${lang}`);
-                // warnings.push(`combination ${comb} has duplication of language: ${lang}`);
             });
         };
     });
@@ -116,7 +115,6 @@ const validateSheet = (sheet, columns, ws) => {
             const missLangs = langs.filter(v => !group[comb].includes(v));
             missLangs.forEach(lang => {
                 ws.emit('warning', `[WARNING]: detected missing language for combination ${comb}: ${lang}`);
-                // warnings.push(`detected missing language for combination ${comb}: ${lang}`);
             });
         };
     });
@@ -126,7 +124,6 @@ const validateSheet = (sheet, columns, ws) => {
         for (group in fields) {
             for (let i = 0; i < fields[group].length; i++) {
                 ws.emit('warning', `[WARNING]: empty ${group} cell detected at row: ${fields[group][i] + 2}`);
-                // warnings.push(`empty ${group} cell detected at row: ${fields[group][i] + 2}`);
             };
         };
     });
@@ -135,15 +132,10 @@ const validateSheet = (sheet, columns, ws) => {
         ? ws.emit('warning', `[WARNING]: skipped combination range: from ${skippedCombsIds[0]} to ${skippedCombsIds.slice(-1)[0]}`)
         : ws.emit('warning', `[WARNING]: skipped combination id: ${skippedCombsIds[0]}`);
 
-    // skippedCombsIds.length > 1
-    //     ? warnings.push(`skipped combination range: from ${skippedCombsIds[0]} to ${skippedCombsIds.slice(-1)[0]}`)
-    //     : skippedCombsIds.length && warnings.push(`skipped combination id: ${skippedCombsIds[0]}`);
-
     combBrokeOrder.forEach(obj => {
         for (const group in obj) {
             obj[group].forEach(issue => {
                 ws.emit('warning', `[WARNING]: element of group ${group} not in proper position at row: ${issue.position + 2}`);
-                // warnings.push(`element of group ${group} not in proper position at row: ${issue.position + 2}`)
             });
         };
     });

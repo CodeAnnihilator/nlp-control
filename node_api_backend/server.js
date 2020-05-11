@@ -12,8 +12,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const collections = {
-    'person': ['mary', 'buddy', 'eugene']
+    'person': ['mary', 'buddy', 'eugene'],
+    'fruit': ['apple', 'peach', 'strawberry']
 }
+
+// app.get('/collections/:id?:lang', (req, res) => {
+//     const {id} = req.params;
+//     const {lang} = req.query;
+//     res.json(collections[id]);
+// })
 
 app.get('/collections/:id', (req, res) => {
     const {id} = req.params;

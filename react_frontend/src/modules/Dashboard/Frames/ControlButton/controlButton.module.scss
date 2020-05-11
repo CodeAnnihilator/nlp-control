@@ -1,13 +1,14 @@
 .container {
-    width: 194px;
-    height: 62px;
+    width: 173px;
+    height: 49px;
     border: 1px solid #e5e5e5;
     border-radius: 4px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin: 0 10px;
+    margin: 15px 5px;
     cursor: pointer;
+    font-size: 14px;
 }
 
 .disabled {

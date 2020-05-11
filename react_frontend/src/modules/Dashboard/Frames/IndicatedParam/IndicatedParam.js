@@ -12,7 +12,7 @@ const IndicatedParam = ({
         <img className={styles.img} src={img} />
         <span>
             <span className={styles.value}>{value}</span>
-            <span className={styles.growth}>{growth > 0 ? `(+${growth})` : `(-${growth})`}</span>
+            {growth && <span className={styles.growth}>{growth > 0 ? `(+${growth})` : `(-${growth})`}</span>}
         </span>
         <span className={styles.text}>{text}</span>
     </div>
