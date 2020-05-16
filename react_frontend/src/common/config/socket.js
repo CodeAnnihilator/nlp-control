@@ -14,11 +14,11 @@ const setupSocket = dispatch => {
   })
 
   socket.on('count.collections', message => {
-    dispatch(logsActions.sendLogWarning({type: 'count.collections', message}))
+    dispatch(logsActions.sendLogWarning({type: 'count.collections'}))
   })
 
   socket.on('count.languages', message => {
-    dispatch(logsActions.sendLogWarning({type: 'count.languages', message}))
+    dispatch(logsActions.sendLogWarning({type: 'count.languages'}))
   })
 
   return socket;

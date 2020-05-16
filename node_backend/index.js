@@ -2,177 +2,59 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const cors = require('cors');
-const axios = require('axios');
-const _ = require('lodash');
+const R = require('ramda');
+const {inspect} = require('util');
 
-const Wit = require('./lib/node-wit-custom');
-const SpreadSheet = require('./lib/spreadsheet');
-
-const validateSheet = require('./lib/validateSheet');
-const validateWIT = require('./lib/validateWIT');
-const findBumps = require('./lib/findBumps');
-const { getSheetData } = require('./lib/utils');
+const loadEntities = require('./lib/loadEntities');
 
 const app = express();
 const port = 8000;
 const server = http.createServer(app);
-const io = require('socket.io')(server);
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const witToken = '3UHAVB3HX6QS3C4T2QHPZBNVZWQWRZ56';
-const googleClientEmail = 'sheets@fa-nlp.iam.gserviceaccount.com';
-const googlePrivateKey = '-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCtZzHPE+W+cvWz\nvUMVJNmDrzIJ01lwHRBAI3tzAjRZH8V2+AM8Qk3J0TIub4BQKx7gMWbx1WJlXfIt\nJDSzpZmpQNzy+9U42vwCzOKsNWuPDNLs9LJqbUGaJbQCVJGi1mK+wT7GYkIkTBVm\nGutmdutV0uucz8carWasmDAHb93BPW8ysjOneDpsaLriI0Er735TpBtd0VqR6oHb\nJ/IJ7YvyPTvr9HnGdRMfu7y+Pi4WZ/p6sxxMDxOov8rru0L6f4+HshFugb/rAcQq\nrAhXMo38M15AVRde2KD+/2tUtBt4iVFu8ohYQQU5891FUKxX73R2SBE/dyXOqbm7\nehknS0hdAgMBAAECggEAGNrQjSPHO8XrGXUQozx5sBIh3D4u1O7ZiDP9yyWe/sJa\n0btpbU78quehJ35EeFlB7vUt0g6ZsLlnT9ifdDuRm6zILszxill7I2SePfxXOzUl\nm6DUXQRlkZSDaY0ZJevQUhLNbm6hl+XO8Gh94t07TL0zl/HBUn3V2Hnk8n/ym3K4\nLCSUfX6eitD9Bh7Dpa/ZYq5ZuCTpmh2mIOHmZy+BgIUvQXXFsDGHb/ltQAzNdCWZ\nmcc9zZqlQ/Em3xhcPSwi7uxVZX9DNUEX9O7c+HFAj0kP4p5gdq2gA7Q3Ml6P5KDg\nK1huLO8bu2QQ3KByKLR9F7EccXpBshXEii/TUZVfcQKBgQDYi7yQaZBtbm1ZMqb2\nDh3SycJq2E2hYatuW+O0Ic5tqCCku3LdxF76Zg6f4sAdqZiupUzCbBOohSrs3YI1\n+0X6eWzM2D/JYc4ZkKtNoC0GVDpMDShqXi+plPWx09kRjOxmVgsvNu1UmXZaMSBQ\ny3Y9uQobXW1vBgu2l1JBS0vZ7QKBgQDM/yr66rOeYQkyKxtrF2a3jJY16EsQ9cie\nM/YU50y2f7moX/VWpv8xw1x7KEYixGITkWjzkVVxWZ/zU3GfvD/TsXZ/PrnoZ73X\nvnpbvxbHzMYOpTe5a9ciGIOA7O/9DxhCpUifyrt0cMb6Gq/c2Ww6FFrWV81+4VKD\neRA8YaaaMQKBgQDCZQddGPdH1dciOP97agbJ4MfAhPeDxZtREfqjDaoz9LeBSql+\nfjfJT+8XB0byGfrv5YK4Eq+/G/UB+IRZE36psXHDnun8TenoN2Ag6ocg5GIFPdan\nTnA5K3k5L3XxdHIQGHQn6YY66R0/MFTTUyONm1yAXmnMPkArpUJ5TTAFrQKBgGax\noZdnginiVJgETkz8wSFMVWeWAhzx89mFEE7yfFSkcZ5uy9nn+Mm2I5sy1sfN94/z\n9U6nTNVm36Em+THbPWJQcZtXEgziA5GTw3o4pTHcXI+zptHFu1VCUIaCq8rrB+1D\nHbmm9vdjE9rxCY6qgPQrhEICZFieihaAzGhjRvHRAoGBAJf2PXBSss2aUAEof0N5\n4fOVoZR2TLBAPKtZe0u5XIacXwijivcQ6fKvHVse2e7toyqtExOTa2Ty4r4B9fYw\nWamN9YLy6XlennTZbAglPs7YXjteZ9NZUnI36Vm23Guz3ZQH+eJpxCPQ95JjY7p/\npUBvIiJ7hK2gv1fUrebk3Blr\n-----END PRIVATE KEY-----\n';
-const googleSpreadsheetId = '1xE8rBZZ7GXHaWnKYtF2p0L4hopBkVjtpQz4zvqpyhxs';
-const backendURL = 'http://localhost:9000';
-
-io.on('connection', async ws => {
-    
-    const WitInstance = new Wit({ accessToken: witToken })
-
-    ws.emit('info', '[INFO]: fetching trained data from WIT.ai');
-
-    const witSamples = await validateWIT(WitInstance);
-
-    ws.emit('info', '[INFO]: checking google sheet credentials');
-
-    const SheetInstance = await new SpreadSheet({
-        client_email: googleClientEmail,
-        private_key: googlePrivateKey,
-        spreadsheet_id: googleSpreadsheetId
-    }).connect();
-
-    const columns = ['combination', 'phrase', 'language', 'intent'];
-
-    ws.emit('info', '[INFO]: fetching google sheet rows');
-
-    const sheet = await getSheetData(SheetInstance, columns);
-
-    const sheetMeta = validateSheet(sheet, columns, ws);
-
-    ws.emit('info', '[INFO]: fetching collections from the backend');
-
-    // const collection = await axios
-    //     .get(`${backendURL}/collections/person`)
-    //     .then(({data}) => data);
-
-    // const assocValues = {person: collection};
-
-    const assocValues1 = await fetchAssocCollections(sheetMeta, sheet);
-
-    console.log(assocValues1)
-
-    ws.emit('count.collections', sheetMeta.combs.length);
-    ws.emit('count.languages', sheetMeta.langs.length);
-
-    // findBumps(sheet, witSamples, assocValues, ws);
-
-    async function fetchAssocCollections (sheetMeta, sheet) {
-        const {langs, combs} = sheetMeta;
-
-        const paramsByLang = combs.reduce((c, n) => {
-            const rows = sheet.filter(r => r.combination === n)
-            const paramByLang = langs.reduce((c1, n1) => {
-                const combLangObj = rows.find(r => r.language === n1);
-                if (!combLangObj) return c1;
-                const metaParams = combLangObj.phrase.match(/<(\w+)>/g);
-                if (!metaParams) return c1;
-                const cleanMetaParams = metaParams.map(str => str.replace(/<|>/g, ''));
-                if (!c1[n1]) return c1[n1] = cleanMetaParams, c1;
-                const uniq = cleanMetaParams.concat(c1[n1]).filter((v, i, s) => s.indexOf(v) === 1);
-                return c1[n1].params.concat(uniq), c1;
-            }, {});
-            return c.push(paramByLang), c;
-        }, []);
-
-        const paramsByLangPairs = _.toPairs(paramsByLang.reduce((c, n) => {
-            const clC = Object.assign(c);
-            for (let [key, values] of Object.entries(n)) {
-                if (!clC[key]) clC[key] = values;
-                if (clC[key]) clC[key] = _.uniq(clC[key].concat(values))
+const train = async (sheet, collections) => {
+    const set = [];
+    for (let row of sheet) {
+        const keys = R.compose(R.without('Intent'), R.keys)(row)
+        for (let lang of keys) {
+            const matches = row[lang].match(/{{(\w+)}}/gi);
+            if (matches) {
+                const asd = matchPhrases(row[lang], matches, collections[lang], 0, [])
+                set.push(asd)   
             }
-            return clC;
-        }, {}));
-
-        const res = await Promise.all(paramsByLangPairs.map(async ([lang, data]) => {
-            const fetchedData = await Promise.all(data.map(async param => {
-                return await axios
-                    .get(`${backendURL}/collections/${param}`)
-                    .then(({data}) => ({[param]: data}))
-                    .catch(e => console.log(e));
-            }))
-            return {lang, data: fetchedData};
-        }))
-
-        console.log(res)
+        }
     }
-});
+    console.log(R.flatten(set))
+}
+
+function matchPhrases (phrase, matches, data, index, trainingSet) {
+    const cleanMatch = matches[index].replace(/{{|}}/gi, '')
+    const values = data[cleanMatch];
+    const tempSet = Object.assign([], trainingSet)
+    for (let value of values) {
+        const trainPhrase = phrase.replace(matches[index], value);
+        if (matches[matches.length - 1] !== matches[index]) {
+            const asd = matchPhrases(trainPhrase, matches, data, index + 1, trainingSet)
+            tempSet.push(asd);
+        } else {
+            tempSet.push(trainPhrase);
+        }
+        if (matches.length < 1) {
+            tempSet.push(trainPhrase)
+        }
+    }
+    return R.flatten(tempSet);
+}
+
 
 server.listen(port, async () => {
-
-    // const WitInstance = new Wit({
-    //     accessToken: witToken
-    // });
-
-    // // map all data from sheet to request all collections from the backend
-    // const collection = await axios
-    //     .get('http://localhost:9000/collections/person')
-    //     .then(({data}) => data);
-
-    // const assocValues = {person: collection};
-
-    // const witSamples = await validateWIT(WitInstance);
-
-    // const SheetInstance = await new SpreadSheet({
-    //     client_email: googleClientEmail,
-    //     private_key: googlePrivateKey,
-    //     spreadsheet_id: googleSpreadsheetId
-    // }).connect();
-
-    // const columns = ['combination', 'phrase', 'language', 'intent'];
-
-    // const sheet = await getSheetData(SheetInstance, columns);
-
-    // const sheetMeta = validateSheet(sheet, columns);
-
-    // const bumps = findBumps(sheet, witSamples, assocValues);
-
-    // console.log(bumps);
-
+    const {sheet, collections} = await loadEntities();
+    
+    train(sheet, collections)
+    
 });
 
-// await fs.writeFileSync(
-//     __dirname + `/backups/google-sheet-${backupId}.json`,
-//     prune([...sheetData]),
-//     'utf-8'
-// );
-
-// await fs.writeFileSync(
-//     __dirname + `/backups/samples-${backupId}.json`,
-//     prune([...samplesBackup]),
-//     'utf-8'
-// );
-
-
-
-
-
-
-        // const langParams = combs.reduce((c, n) => {
-        //     const rows = sheet.filter(r => r.combination === n);
-        //     const langParam = langs.reduce((c1, n1) => {
-        //         const langRow = rows.find(r => r.language === n1);
-        //         if (!langRow) return c1;
-        //         const meta = langRow.phrase.match(/<(\w+)>/g);
-        //         if (!meta) return c1;
-        //         const params = meta.map(str => str.replace(/<|>/g, ''));
-        //         return c1.push({lang: n1, params}), c1;
-        //     }, []);
-        //     return c.push(langParam), c;
-        // }, [])
-
-        // const uniqLangParams = langParams.reduce((c, n) => {
-        //     if (!c[])
-        // }, {})
+// console.log(inspect({sheet}, false, null, true));

@@ -1,4 +1,4 @@
-const validateWIT = async Instance => {
+const requestSamples = async Instance => {
     const samples = [];
     let offset = 0;
     while (true) {
@@ -13,6 +13,6 @@ const validateWIT = async Instance => {
     return samples;
 }
 
-module.exports = validateWIT;
+module.exports = requestSamples;
 
 // request samples by 200 till same sample met

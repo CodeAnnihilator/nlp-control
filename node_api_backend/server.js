@@ -22,8 +22,8 @@ const collections = {
 //     res.json(collections[id]);
 // })
 
-app.get('/collections/:id', (req, res) => {
-    const {id} = req.params;
+app.get('/collections/:id/:lang', (req, res) => {
+    const {id, lang} = req.params;
     res.json(collections[id]);
 })
 
