@@ -16,39 +16,59 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const train = async (sheet, collections) => {
-    const set = [];
+    const trainingSet = [];
     for (let row of sheet) {
-        const keys = R.compose(R.without('Intent'), R.keys)(row)
+        const keys = R.keys(row)
         for (let lang of keys) {
             const matches = row[lang].match(/{{(\w+)}}/gi);
             if (matches) {
-                const asd = matchPhrases(row[lang], matches, collections[lang], 0, [])
-                set.push(asd)   
+                const deeplyParsedPhraseEntities = makePhraseEntities(row['Intent'], matches, row[lang], collections[lang]);
+                trainingSet.push(deeplyParsedPhraseEntities) 
+            } else {
+                if (lang !== 'Intent') {
+                    trainingSet.push({
+                        text: row[lang],
+                        entities: [{
+                            entity: 'Intent',
+                            value: row['Intent']
+                        }]
+                    })
+                }
             }
         }
     }
-    console.log(R.flatten(set))
+    // console.log(R.flatten(trainingSet))
+    console.log(inspect(R.flatten(trainingSet), false, null, true))
 }
 
-function matchPhrases (phrase, matches, data, index, trainingSet) {
-    const cleanMatch = matches[index].replace(/{{|}}/gi, '')
-    const values = data[cleanMatch];
-    const tempSet = Object.assign([], trainingSet)
+function makePhraseEntities (intent, matches, phrase, collections, deepEntities=[], index=0) {
+    const entity = matches[index].replace(/{{|}}/gi, '');
+    const values = collections[entity];
+    const startPos = phrase.indexOf(matches[index]);
+    let phraseEntities = [];
     for (let value of values) {
-        const trainPhrase = phrase.replace(matches[index], value);
-        if (matches[matches.length - 1] !== matches[index]) {
-            const asd = matchPhrases(trainPhrase, matches, data, index + 1, trainingSet)
-            tempSet.push(asd);
-        } else {
-            tempSet.push(trainPhrase);
+        const updatedPhrase = phrase.replace(matches[index], value);
+        const updatedDeepEntities = deepEntities.concat([
+            {
+                entity: entity,
+                value: value,
+                start: startPos,
+                end: startPos + value.length
+            },
+        ])
+        if (index < 1) {
+            updatedDeepEntities.push({
+                entity: 'Intent',
+                value: intent
+            })
         }
-        if (matches.length < 1) {
-            tempSet.push(trainPhrase)
+        phraseEntities.push({text: updatedPhrase, entities: updatedDeepEntities})
+        if (matches[matches.length - 1] !== matches[index]) {
+            return makePhraseEntities(intent, matches, updatedPhrase, collections, updatedDeepEntities, index + 1);
         }
     }
-    return R.flatten(tempSet);
+    return phraseEntities
 }
-
 
 server.listen(port, async () => {
     const {sheet, collections} = await loadEntities();
