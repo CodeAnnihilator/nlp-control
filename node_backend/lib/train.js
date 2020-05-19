@@ -1,6 +1,5 @@
 const R = require('ramda');
 const Wit = require('./node-wit-custom');
-const {inspect} = require('util');
 
 const env = {
     witToken: 'SC2JCX5V5VSSIIB2WUAINRVISE3FRVWA'
