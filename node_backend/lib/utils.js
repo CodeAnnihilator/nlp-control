@@ -3,7 +3,7 @@ const R = require('ramda');
 const getUniqCollections = sheet => R.pipe(
     R.map(row => {
         const keys = R.compose(
-            R.without('Intent'),
+            R.without('intent'),
             R.keys
         )(row)
         return keys.map(key => {
@@ -31,6 +31,14 @@ const getUniqCollections = sheet => R.pipe(
     })
 )(sheet)
 
+const uniqEntities = sheet => R.pipe(
+    getUniqCollections,
+    R.map(R.values),
+    R.flatten,
+    R.uniq
+)(sheet)
+
 module.exports = {
-    getUniqCollections
+    getUniqCollections,
+    uniqEntities
 }

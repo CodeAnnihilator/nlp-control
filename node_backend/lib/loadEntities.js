@@ -1,3 +1,4 @@
+const Wit = require('./node-wit-custom');
 const SpreadSheet = require('./SpreadSheet');
 const APIBackend = require('./APIBackend');
 
@@ -10,12 +11,42 @@ const env = {
     googleSpreadsheetId: '1xE8rBZZ7GXHaWnKYtF2p0L4hopBkVjtpQz4zvqpyhxs',
     APIBackendBaseURL: 'http://3.6.251.1:9889',
     APIBackendAccessToken: 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwaG9uZU51bWJlciI6Im15VmZNbUskOUFLcGojJU0qbSohQTJNTSVxeGVuaVRiMzNJdDYwcVBpWGxRcUFGWkZ2IiwiaWF0IjoxNTg4MTYzNDY2fQ.GOznJWMWDKLEXrTQ7hAfp4uSJ_72ONEoVESZBAniUdg'
-
 }
-const languages = ['English', 'Hindi', 'Marathi', 'Telugu'];
-const columns = ['Intent'].concat(languages);
+
+const languages = ['english', 'hindi', 'marathi', 'telugu'];
+const columns = ['intent'].concat(languages);
 
 module.exports = async function loadEntities () {
+
+    const WitInstance = new Wit({
+        accessToken: env.witToken
+    });
+
+    // const values = [{
+    //     text: 'టొమాటో గ్రేప్ లో కలుపు గురించి చెప్పండి',
+    //     entities: [
+    //         { entity: 'crop', value: 'గ్రేప్', start: 7, end: 13 },
+    //         { entity: 'intent', value: 'Crop' }
+    //     ]
+    // }]
+
+    // const values2 = [{
+    //     "text": "I want to fly to sfo",
+    //     "entities": [
+    //       {
+    //         "entity": "intent",
+    //         "value": "flight_request"
+    //       },
+    //       {
+    //         "entity": "wit$location",
+    //         "start": 17,
+    //         "end": 20,
+    //         "value": "sfo"
+    //       }
+    //     ]
+    // }]
+
+    // const data = await WitInstance.post('samples', values)
 
     const SheetInstance = new SpreadSheet({
         client_email: env.googleClientEmail,
