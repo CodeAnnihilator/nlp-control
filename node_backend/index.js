@@ -2,6 +2,8 @@ const express = require('express');
 const http = require('http');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fs = require('fs');
+const prune = require('json-prune');
 
 const loadEntities = require('./lib/loadEntities');
 const trainingSet = require('./lib/trainingSet');

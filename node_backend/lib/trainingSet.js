@@ -34,19 +34,21 @@ const trainingSet = async (sheet, collections) => {
     for (let row of sheet) {
         const keys = R.keys(row)
         for (let lang of keys) {
-            const matches = row[lang].match(/{{(\w+)}}/gi);
-            if (matches) {
-                const deeplyParsedPhraseEntities = makePhraseEntities(row['intent'], matches, row[lang], collections[lang]);
-                trainingSet.push(deeplyParsedPhraseEntities) 
-            } else {
-                if (lang !== 'intent') {
-                    trainingSet.push({
-                        text: row[lang],
-                        entities: [{
-                            entity: 'intent',
-                            value: row['intent']
-                        }]
-                    })
+            if (row[lang]) {
+                const matches = row[lang].match(/{{(\w+)}}/gi);
+                if (matches) {
+                    const deeplyParsedPhraseEntities = makePhraseEntities(row['intent'], matches, row[lang], collections[lang]);
+                    trainingSet.push(deeplyParsedPhraseEntities) 
+                } else {
+                    if (lang !== 'intent') {
+                        trainingSet.push({
+                            text: row[lang],
+                            entities: [{
+                                entity: 'intent',
+                                value: row['intent']
+                            }]
+                        })
+                    }
                 }
             }
         }

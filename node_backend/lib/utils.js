@@ -7,6 +7,7 @@ const getUniqCollections = sheet => R.pipe(
             R.keys
         )(row)
         return keys.map(key => {
+            if (!row[key]) return null;
             const matches = row[key].match(/{{(\w+)}}/gi);
             if (!matches) return null;
             const collections = matches.map(match => match.replace(/{{|}}/gi, ''));

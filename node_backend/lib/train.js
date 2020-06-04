@@ -1,8 +1,9 @@
 const R = require('ramda');
 const Wit = require('./node-wit-custom');
+const {inspect} = require('util');
 
 const env = {
-    witToken: 'SC2JCX5V5VSSIIB2WUAINRVISE3FRVWA'
+    witToken: 'XFMNNY7GUQDBWLWGVH4G5EIJJLI7KJ6Q'
 }
 
 const delay = time => new Promise((resolve) => setTimeout(resolve, time));
@@ -10,25 +11,37 @@ const delay = time => new Promise((resolve) => setTimeout(resolve, time));
 const train = async (entities, data) => {
 
     let iteration = data.length;
-    
+    const limit = 1;
+    let count = 0;
+
+    let date = new Date();
+
     const WitInstance = new Wit({
-            accessToken: env.witToken
-        });
+        accessToken: env.witToken
+    });
 
     for (let entity of entities) {
         await WitInstance.post('entities', {id: entity})
     }
 
     while (true) {
-        const iterationTo = iteration - 30 < 0 ? Math.abs(30 - iteration) : 30;
+        const time = Math.abs(date.getSeconds() - new Date().getSeconds());
+        if (count > 150) {
+            if (time < 60) {
+                await delay((60 - time) * 1000)
+                date = new Date();
+                count = 0;
+            }
+        }
+        const chunk = (iteration - limit) < 0 ? Math.abs(limit - iteration) : limit;
+        await WitInstance.post('samples', data.slice(iteration - chunk, iteration));
         console.log(iteration)
-        await WitInstance.post('samples', data.slice(iteration - iterationTo, iteration));
-        if (iterationTo < 30) {
+        if ((iteration - limit) < 0 ) {
             console.log('done');
-            break
+            break;
         };
-        await delay(70000)
-        iteration = iteration - 30;
+        count++
+        iteration = iteration - limit;
     }
 
 }
