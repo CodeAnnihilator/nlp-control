@@ -1,0 +1,2 @@
+# nlp-control
+Automated tool for NLP training and data caching, edged to be used with WIT.ai. To train NLP on different languages with different intents and parameters, Excel file is used. All the data is getting validated along the way. Websockets are used to inform client about each step pf the process, approximate time left and general status. Data backups and connection issues resolution are planned in future releases.
