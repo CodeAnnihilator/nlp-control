@@ -19,7 +19,7 @@
     "https-proxy-agent": "^5.0.0",
     "isomorphic-fetch": "^2.2.1",
     "json-prune": "^1.1.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "node-wit": "^5.0.0",
     "pg": "^8.0.3",
     "ramda": "^0.27.0",
